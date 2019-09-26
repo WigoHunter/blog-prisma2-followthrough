@@ -5,12 +5,16 @@ let apolloClient = null;
 
 function create(initialState) {
   const isBrowser = typeof window !== "undefined";
+  const isDocker = process.env.BACKEND_URL === "http://backend:4000/graphql";
 
   return new ApolloClient({
     connectToDevTools: isBrowser,
     ssrMode: !isBrowser,
     link: new HttpLink({
-      uri: isBrowser ? "http://localhost:4000" : "http://backend:4000",
+      uri:
+        isDocker && isBrowser
+          ? "http://localhost:4000/graphql"
+          : process.env.BACKEND_URL,
       credentials: "same-origin",
       fetch: !isBrowser && fetch
     }),

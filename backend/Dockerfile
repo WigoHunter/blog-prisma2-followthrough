@@ -7,6 +7,9 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
+ARG MYSQL_URL
+ENV MYSQL_URL "$MYSQL_URL"
+
 RUN npm install
 RUN prisma2 generate
 
