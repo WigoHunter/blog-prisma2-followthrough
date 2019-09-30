@@ -1,0 +1,7 @@
+#import from "../fragments/like.gql"
+
+mutation likePost($id: String!, $authorEmail: String!) {
+  like(postID: $id, authorEmail: $authorEmail) {
+    ...LikeFragment
+  }
+}

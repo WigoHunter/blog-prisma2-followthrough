@@ -3,4 +3,9 @@ fragment PostFragment on Post {
   published
   title
   content
+  likes {
+    user {
+      email
+    }
+  }
 }

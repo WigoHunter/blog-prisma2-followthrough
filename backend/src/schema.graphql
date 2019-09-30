@@ -5,9 +5,40 @@
 """DateTime"""
 scalar DateTime
 
+type Like {
+  id: ID!
+  post: Post!
+  user: User!
+}
+
+input LikeCreateManyWithoutLikesInput {
+  connect: [LikeWhereUniqueInput!]
+  create: [LikeCreateWithoutPostInput!]
+}
+
+input LikeCreateOneWithoutLikeInput {
+  connect: LikeWhereUniqueInput
+  create: LikeCreateWithoutUserInput
+}
+
+input LikeCreateWithoutPostInput {
+  id: ID
+  user: UserCreateOneWithoutUserInput!
+}
+
+input LikeCreateWithoutUserInput {
+  id: ID
+  post: PostCreateOneWithoutPostInput!
+}
+
+input LikeWhereUniqueInput {
+  id: ID
+}
+
 type Mutation {
   createDraft(authorEmail: String, content: String, title: String): Post!
   deleteOnePost(where: PostWhereUniqueInput!): Post
+  like(authorEmail: String, postID: String): Like!
   publish(id: ID): Post
   signupUser(data: UserCreateInput!): User!
 }
@@ -17,6 +48,7 @@ type Post {
   content: String
   createdAt: DateTime!
   id: ID!
+  likes(after: String, before: String, first: Int, last: Int, skip: Int): [Like!]
   published: Boolean!
   title: String!
   updatedAt: DateTime!
@@ -27,11 +59,27 @@ input PostCreateManyWithoutPostsInput {
   create: [PostCreateWithoutAuthorInput!]
 }
 
+input PostCreateOneWithoutPostInput {
+  connect: PostWhereUniqueInput
+  create: PostCreateWithoutLikesInput
+}
+
 input PostCreateWithoutAuthorInput {
   content: String
   createdAt: DateTime
   id: ID
-  published: Boolean!
+  likes: LikeCreateManyWithoutLikesInput
+  published: Boolean
+  title: String!
+  updatedAt: DateTime
+}
+
+input PostCreateWithoutLikesInput {
+  author: UserCreateOneWithoutAuthorInput
+  content: String
+  createdAt: DateTime
+  id: ID
+  published: Boolean
   title: String!
   updatedAt: DateTime
 }
@@ -41,9 +89,10 @@ input PostWhereUniqueInput {
 }
 
 type Query {
-  feed: [Post!]!
+  feed(published: Boolean): [Post!]!
   filterPosts(searchString: String): [Post!]!
   post(where: PostWhereUniqueInput!): Post
+  users: [User!]!
 }
 
 type User {
@@ -56,6 +105,36 @@ type User {
 input UserCreateInput {
   email: String!
   id: ID
+  like: LikeCreateOneWithoutLikeInput
   name: String
   posts: PostCreateManyWithoutPostsInput
+}
+
+input UserCreateOneWithoutAuthorInput {
+  connect: UserWhereUniqueInput
+  create: UserCreateWithoutPostsInput
+}
+
+input UserCreateOneWithoutUserInput {
+  connect: UserWhereUniqueInput
+  create: UserCreateWithoutLikeInput
+}
+
+input UserCreateWithoutLikeInput {
+  email: String!
+  id: ID
+  name: String
+  posts: PostCreateManyWithoutPostsInput
+}
+
+input UserCreateWithoutPostsInput {
+  email: String!
+  id: ID
+  like: LikeCreateOneWithoutLikeInput
+  name: String
+}
+
+input UserWhereUniqueInput {
+  email: String
+  id: ID
 }

@@ -3,6 +3,7 @@ import { Table, Button } from "antd";
 import { FeedQueryComponent } from "../generated/apollo-components";
 import PublishDraft from "./publish-draft";
 import DeletePost from "./delete-post";
+import LikePost from "./like-post";
 
 type Props = {
   published: boolean;
@@ -19,6 +20,8 @@ class FeedList extends React.PureComponent<Props> {
           if (error) return <p>Error</p>;
 
           if (data && "feed" in data && data.feed.length > 0) {
+            console.log(data.feed);
+
             const feedData = data.feed.map(({ id, title, content }, index) => ({
               key: index,
               title,
@@ -45,6 +48,7 @@ class FeedList extends React.PureComponent<Props> {
                     <Button.Group>
                       {published ? null : <PublishDraft id={id} />}
                       <DeletePost id={id} />
+                      <LikePost id={id} email="wigo@hunter.com" />
                     </Button.Group>
                   );
                 }

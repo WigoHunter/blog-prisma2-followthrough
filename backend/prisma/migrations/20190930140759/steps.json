@@ -164,6 +164,96 @@
       },
       "arity": "optional",
       "isUnique": false
+    },
+    {
+      "stepType": "CreateModel",
+      "name": "Like",
+      "embedded": false
+    },
+    {
+      "stepType": "CreateField",
+      "model": "User",
+      "name": "like",
+      "type": {
+        "Relation": {
+          "to": "Like",
+          "to_fields": [],
+          "name": "LikeToUser",
+          "on_delete": "None"
+        }
+      },
+      "arity": "optional",
+      "isUnique": false
+    },
+    {
+      "stepType": "CreateField",
+      "model": "Post",
+      "name": "likes",
+      "type": {
+        "Relation": {
+          "to": "Like",
+          "to_fields": [],
+          "name": "LikeToPost",
+          "on_delete": "None"
+        }
+      },
+      "arity": "list",
+      "isUnique": false
+    },
+    {
+      "stepType": "CreateField",
+      "model": "Like",
+      "name": "id",
+      "type": {
+        "Base": "String"
+      },
+      "arity": "required",
+      "isUnique": false,
+      "id": {
+        "strategy": "Auto",
+        "sequence": null
+      },
+      "default": {
+        "Expression": [
+          "cuid",
+          "String",
+          []
+        ]
+      }
+    },
+    {
+      "stepType": "CreateField",
+      "model": "Like",
+      "name": "post",
+      "type": {
+        "Relation": {
+          "to": "Post",
+          "to_fields": [
+            "id"
+          ],
+          "name": "LikeToPost",
+          "on_delete": "None"
+        }
+      },
+      "arity": "required",
+      "isUnique": false
+    },
+    {
+      "stepType": "CreateField",
+      "model": "Like",
+      "name": "user",
+      "type": {
+        "Relation": {
+          "to": "User",
+          "to_fields": [
+            "id"
+          ],
+          "name": "LikeToUser",
+          "on_delete": "None"
+        }
+      },
+      "arity": "required",
+      "isUnique": false
     }
   ]
 }

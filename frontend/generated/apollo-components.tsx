@@ -16,10 +16,42 @@ export type Scalars = {
 };
 
 
+export type Like = {
+   __typename?: 'Like',
+  id: Scalars['ID'],
+  user: User,
+  post: Post,
+};
+
+export type LikeCreateManyWithoutLikesInput = {
+  create?: Maybe<Array<LikeCreateWithoutPostInput>>,
+  connect?: Maybe<Array<LikeWhereUniqueInput>>,
+};
+
+export type LikeCreateOneWithoutLikeInput = {
+  create?: Maybe<LikeCreateWithoutUserInput>,
+  connect?: Maybe<LikeWhereUniqueInput>,
+};
+
+export type LikeCreateWithoutPostInput = {
+  id?: Maybe<Scalars['ID']>,
+  user: UserCreateOneWithoutUserInput,
+};
+
+export type LikeCreateWithoutUserInput = {
+  id?: Maybe<Scalars['ID']>,
+  post: PostCreateOneWithoutPostInput,
+};
+
+export type LikeWhereUniqueInput = {
+  id?: Maybe<Scalars['ID']>,
+};
+
 export type Mutation = {
    __typename?: 'Mutation',
   signupUser: User,
   deleteOnePost?: Maybe<Post>,
+  like: Like,
   createDraft: Post,
   publish?: Maybe<Post>,
 };
@@ -32,6 +64,12 @@ export type MutationSignupUserArgs = {
 
 export type MutationDeleteOnePostArgs = {
   where: PostWhereUniqueInput
+};
+
+
+export type MutationLikeArgs = {
+  authorEmail?: Maybe<Scalars['String']>,
+  postID?: Maybe<Scalars['String']>
 };
 
 
@@ -55,11 +93,26 @@ export type Post = {
   content?: Maybe<Scalars['String']>,
   published: Scalars['Boolean'],
   author?: Maybe<User>,
+  likes?: Maybe<Array<Like>>,
+};
+
+
+export type PostLikesArgs = {
+  skip?: Maybe<Scalars['Int']>,
+  after?: Maybe<Scalars['String']>,
+  before?: Maybe<Scalars['String']>,
+  first?: Maybe<Scalars['Int']>,
+  last?: Maybe<Scalars['Int']>
 };
 
 export type PostCreateManyWithoutPostsInput = {
   create?: Maybe<Array<PostCreateWithoutAuthorInput>>,
   connect?: Maybe<Array<PostWhereUniqueInput>>,
+};
+
+export type PostCreateOneWithoutPostInput = {
+  create?: Maybe<PostCreateWithoutLikesInput>,
+  connect?: Maybe<PostWhereUniqueInput>,
 };
 
 export type PostCreateWithoutAuthorInput = {
@@ -69,6 +122,17 @@ export type PostCreateWithoutAuthorInput = {
   published?: Maybe<Scalars['Boolean']>,
   title: Scalars['String'],
   content?: Maybe<Scalars['String']>,
+  likes?: Maybe<LikeCreateManyWithoutLikesInput>,
+};
+
+export type PostCreateWithoutLikesInput = {
+  id?: Maybe<Scalars['ID']>,
+  createdAt?: Maybe<Scalars['DateTime']>,
+  updatedAt?: Maybe<Scalars['DateTime']>,
+  published?: Maybe<Scalars['Boolean']>,
+  title: Scalars['String'],
+  content?: Maybe<Scalars['String']>,
+  author?: Maybe<UserCreateOneWithoutAuthorInput>,
 };
 
 export type PostWhereUniqueInput = {
@@ -120,10 +184,59 @@ export type UserCreateInput = {
   email: Scalars['String'],
   name?: Maybe<Scalars['String']>,
   posts?: Maybe<PostCreateManyWithoutPostsInput>,
+  like?: Maybe<LikeCreateOneWithoutLikeInput>,
 };
+
+export type UserCreateOneWithoutAuthorInput = {
+  create?: Maybe<UserCreateWithoutPostsInput>,
+  connect?: Maybe<UserWhereUniqueInput>,
+};
+
+export type UserCreateOneWithoutUserInput = {
+  create?: Maybe<UserCreateWithoutLikeInput>,
+  connect?: Maybe<UserWhereUniqueInput>,
+};
+
+export type UserCreateWithoutLikeInput = {
+  id?: Maybe<Scalars['ID']>,
+  email: Scalars['String'],
+  name?: Maybe<Scalars['String']>,
+  posts?: Maybe<PostCreateManyWithoutPostsInput>,
+};
+
+export type UserCreateWithoutPostsInput = {
+  id?: Maybe<Scalars['ID']>,
+  email: Scalars['String'],
+  name?: Maybe<Scalars['String']>,
+  like?: Maybe<LikeCreateOneWithoutLikeInput>,
+};
+
+export type UserWhereUniqueInput = {
+  id?: Maybe<Scalars['ID']>,
+  email?: Maybe<Scalars['String']>,
+};
+export type LikeFragmentFragment = (
+  { __typename?: 'Like' }
+  & Pick<Like, 'id'>
+  & { user: (
+    { __typename?: 'User' }
+    & Pick<User, 'email'>
+  ), post: (
+    { __typename?: 'Post' }
+    & Pick<Post, 'title'>
+  ) }
+);
+
 export type PostFragmentFragment = (
   { __typename?: 'Post' }
   & Pick<Post, 'id' | 'published' | 'title' | 'content'>
+  & { likes: Maybe<Array<(
+    { __typename?: 'Like' }
+    & { user: (
+      { __typename?: 'User' }
+      & Pick<User, 'email'>
+    ) }
+  )>> }
 );
 
 export type UserFragmentFragment = (
@@ -155,6 +268,19 @@ export type DeleteOnePostMutation = (
   & { deleteOnePost: Maybe<{ __typename?: 'Post' }
     & PostFragmentFragment
   > }
+);
+
+export type LikePostMutationVariables = {
+  id: Scalars['String'],
+  authorEmail: Scalars['String']
+};
+
+
+export type LikePostMutation = (
+  { __typename?: 'Mutation' }
+  & { like: { __typename?: 'Like' }
+    & LikeFragmentFragment
+   }
 );
 
 export type PublishMutationMutationVariables = {
@@ -215,12 +341,28 @@ export type UsersQueryQuery = (
     & UserFragmentFragment
   > }
 );
+export const LikeFragmentFragmentDoc = gql`
+    fragment LikeFragment on Like {
+  id
+  user {
+    email
+  }
+  post {
+    title
+  }
+}
+    `;
 export const PostFragmentFragmentDoc = gql`
     fragment PostFragment on Post {
   id
   published
   title
   content
+  likes {
+    user {
+      email
+    }
+  }
 }
     `;
 export const UserFragmentFragmentDoc = gql`
@@ -262,6 +404,22 @@ export type DeleteOnePostComponentProps = Omit<ApolloReactComponents.MutationCom
     
 export type DeleteOnePostMutationResult = ApolloReactCommon.MutationResult<DeleteOnePostMutation>;
 export type DeleteOnePostMutationOptions = ApolloReactCommon.BaseMutationOptions<DeleteOnePostMutation, DeleteOnePostMutationVariables>;
+export const LikePostDocument = gql`
+    mutation likePost($id: String!, $authorEmail: String!) {
+  like(postID: $id, authorEmail: $authorEmail) {
+    ...LikeFragment
+  }
+}
+    ${LikeFragmentFragmentDoc}`;
+export type LikePostMutationFn = ApolloReactCommon.MutationFunction<LikePostMutation, LikePostMutationVariables>;
+export type LikePostComponentProps = Omit<ApolloReactComponents.MutationComponentOptions<LikePostMutation, LikePostMutationVariables>, 'mutation'>;
+
+    export const LikePostComponent = (props: LikePostComponentProps) => (
+      <ApolloReactComponents.Mutation<LikePostMutation, LikePostMutationVariables> mutation={LikePostDocument} {...props} />
+    );
+    
+export type LikePostMutationResult = ApolloReactCommon.MutationResult<LikePostMutation>;
+export type LikePostMutationOptions = ApolloReactCommon.BaseMutationOptions<LikePostMutation, LikePostMutationVariables>;
 export const PublishMutationDocument = gql`
     mutation publishMutation($id: ID!) {
   publish(id: $id) {

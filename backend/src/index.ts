@@ -23,6 +23,15 @@ const User = objectType({
   }
 });
 
+const Like = objectType({
+  name: "Like",
+  definition(t) {
+    t.model.id();
+    t.model.user();
+    t.model.post();
+  }
+});
+
 const Post = objectType({
   name: "Post",
   definition(t) {
@@ -33,6 +42,7 @@ const Post = objectType({
     t.model.content();
     t.model.published();
     t.model.author();
+    t.model.likes();
   }
 });
 
@@ -87,6 +97,24 @@ const Mutation = objectType({
     t.crud.createOneUser({ alias: "signupUser" });
     t.crud.deleteOnePost();
 
+    t.field("like", {
+      type: "Like",
+      args: {
+        authorEmail: stringArg(),
+        postID: stringArg()
+      },
+      resolve: (_, { authorEmail, postID }, ctx) => {
+        return ctx.photon.likes.create({
+          data: {
+            post: { connect: { id: postID } },
+            user: {
+              connect: { email: authorEmail }
+            }
+          }
+        });
+      }
+    });
+
     t.field("createDraft", {
       type: "Post",
       args: {
@@ -125,7 +153,7 @@ const Mutation = objectType({
 });
 
 const schema = makeSchema({
-  types: [Query, Mutation, Post, User, nexusPrisma],
+  types: [Query, Mutation, Post, User, Like, nexusPrisma],
   outputs: {
     typegen: join(__dirname, "../generated/nexus-typegen.ts"),
     schema: join(__dirname, "/schema.graphql")
